@@ -2,12 +2,17 @@
 <html>
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    <title>Awesome website</title>
+    <title>Programming languages evolution</title>
     <link rel="stylesheet" type="text/css" href="styles/style.css">
   </head>
   <body ng-controller='AppController'>
     <div class='container'>
-      <h2>{{ greeting }}</h2>
+      <div class='log'>{{ logMessage }}</div>
+      <ul>
+        <li ng-repeat='language in languages'>
+          <a ng-href='{{language.url}}'>{{language.title}}</a>
+        </li>
+      </ul>
     </div>
     <script src='external.min.js' type="text/javascript" charset="utf-8">
     </script>
