@@ -34,7 +34,7 @@ function runBrowserify() {
 
   var bundle = require('browserify')()
     .add('./src/scripts/index.js')
-    .bundle() 
+    .bundle()
     .on('error', function (err) {
         gutil.log(gutil.colors.red('Failed to browserify'), gutil.colors.yellow(err.message));
     });
@@ -47,9 +47,9 @@ function compileLess() {
     gutil.log(gutil.colors.red('Failed to compile less: '), gutil.colors.yellow(err.message));
   });
 
-	gulp.src('src/styles/style.less')
-		.pipe(less)
-		.pipe(gulp.dest('dist/styles'));
+  gulp.src('src/styles/style.less')
+    .pipe(less)
+    .pipe(gulp.dest('dist/styles'));
 }
 
 function makeDist() {
