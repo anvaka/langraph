@@ -2,13 +2,54 @@ module.exports = wiki;
 
 var wikiapi = 'http://en.wikipedia.org/w/api.php';
 
-function wiki(http) {
+function wiki(http, q) {
   return {
-    getAllLanguages: getAllLanguages
+    getAllLanguages: getAllLanguages,
+    getPages: getPages,
   };
+
+  function getPages(allPages) {
+    // wikipedia API supports only 50 pages at once
+    var chunksOfWork = [];
+    while (allPages.length) {
+      var chunk = allPages.splice(0, Math.min(50, allPages.length));
+      chunksOfWork.push(getPagesChunk(chunk));
+    }
+
+    return q.all(chunksOfWork).then(function(results) {
+      var responses = results[0];
+      var all = [];
+
+      results.forEach(concatenate);
+
+      return all;
+
+      function concatenate(arr) {
+        all = all.concat(arr);
+      }
+    });
+  }
 
   function getAllLanguages(limit) {
     return getPagesUsingTemplate('Template:Infobox_programming_language', limit);
+  }
+
+  function getPagesChunk(pageids) {
+    var params = {
+      action: 'query',
+      prop: 'revisions',
+      rvprop: 'content',
+      rvsection: 0,
+      pageids: pageids.join('|'),
+      format: 'json',
+      callback: 'JSON_CALLBACK'
+    };
+
+    return http.jsonp(wikiapi, { params: params })
+      .then(function(res) {
+        var pages = res.data.query.pages;
+        return pages;
+      });
   }
 
   function getPagesUsingTemplate(templateTitle, limit) {
@@ -30,7 +71,9 @@ function wiki(http) {
     return get(params, []);
 
     function get(params, all) {
-      return http.jsonp(wikiapi, { params: params }).then(getNextPage);
+      return http.jsonp(wikiapi, {
+        params: params
+      }).then(getNextPage);
 
       function getNextPage(res) {
         if (res.status !== 200) throw new Error('Failed to download template usage for ' + templateTitle);

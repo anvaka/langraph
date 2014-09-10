@@ -1,14 +1,22 @@
 require('an').controller(AppController);
 
-function AppController($scope, $http) {
-  var wiki = require('./wikipediaClient')($http);
+function AppController($scope, $http, $q) {
+  var wiki = require('./wikipediaClient')($http, $q);
 
   $scope.logMessage = 'Building wikipedia graph...';
 
-  wiki.getAllLanguages(10).then(function (languages) {
-    $scope.logMessage = 'Done';
-    $scope.languages = languages.map(toView);
+  // todo: this should really be a graph builder, not app controller:
+  wiki.getAllLanguages(10).then(getPageContent).then(
+  function log(x) {
+    console.log(x);
   });
+
+  function getPageContent(languages) {
+    $scope.logMessage = 'Done. Getting page content';
+    $scope.languages = languages.map(toView);
+
+    return wiki.getPages(languages.map(toPageid));
+  }
 }
 
 function toView(language) {
@@ -21,3 +29,9 @@ function toView(language) {
 function escapeWikiUrl(name) {
   return name.replace(/\s/g, '_');
 }
+
+function toPageid(language) {
+  return language.pageid;
+}
+
+AppController.$inject = ['$scope', '$http', '$q'];
