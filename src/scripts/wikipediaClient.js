@@ -7,18 +7,22 @@ function wiki(http) {
     getAllLanguages: getAllLanguages
   };
 
-  function getAllLanguages() {
-    return getPagesUsingTemplate('Template:Infobox_programming_language');
+  function getAllLanguages(limit) {
+    return getPagesUsingTemplate('Template:Infobox_programming_language', limit);
   }
 
-  function getPagesUsingTemplate(templateTitle) {
+  function getPagesUsingTemplate(templateTitle, limit) {
+    if (typeof limit !== 'number') limit = 500;
+
+    var totalFetched = 0;
+
     var params = {
       action: 'query',
       list: 'embeddedin',
       eititle: templateTitle,
       eifilterredir: 'nonredirects',
       einamespace: 0,
-      eilimit: 500,
+      eilimit: limit,
       format: 'json',
       callback: 'JSON_CALLBACK'
     };
@@ -34,7 +38,8 @@ function wiki(http) {
         var nextPage = data['query-continue'];
 
         all = all.concat(data.query.embeddedin);
-        if (nextPage) {
+        totalFetched = all.length;
+        if (nextPage && totalFetched < limit) {
           params.eicontinue = nextPage.embeddedin.eicontinue;
           return get(params, all);
         } else {

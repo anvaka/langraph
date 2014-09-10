@@ -5,7 +5,7 @@ function AppController($scope, $http) {
 
   $scope.logMessage = 'Building wikipedia graph...';
 
-  wiki.getAllLanguages().then(function (languages) {
+  wiki.getAllLanguages(10).then(function (languages) {
     $scope.logMessage = 'Done';
     $scope.languages = languages.map(toView);
   });
