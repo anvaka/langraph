@@ -16,17 +16,23 @@ function wiki(http, q) {
       chunksOfWork.push(getPagesChunk(chunk));
     }
 
-    return q.all(chunksOfWork).then(function(results) {
-      var responses = results[0];
+    return q.all(chunksOfWork).then(function(responses) {
       var all = [];
 
-      results.forEach(concatenate);
+      for (var i=0; i < responses.length; ++i) {
+        Object.keys(responses[i]).forEach(save(i));
+      }
 
       return all;
 
-      function concatenate(arr) {
-        all = all.concat(arr);
+      function save(i) {
+        var page = responses[i];
+        return function (key) {
+          all.push(page[key]);
+          return page[key];
+        };
       }
+
     });
   }
 
