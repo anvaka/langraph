@@ -10,7 +10,7 @@
       <div class='log'>{{ logMessage }}</div>
       <ul>
         <li ng-repeat='language in languages'>
-          <a ng-href='{{language.url}}'>{{language.title}}</a>
+        <a ng-href='{{language.url}}'>{{language.title}}</a> - {{language.info.year}}
         </li>
       </ul>
     </div>
