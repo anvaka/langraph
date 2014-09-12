@@ -12,8 +12,8 @@ function parseInfoBox(pageContent) {
   for (var i = 0; i < lines.length; ++i) {
     var line = lines[i];
     if (isWaitInfoBox) {
-      if (line.length !== 30) continue;
-      if (line.match(/^{{Infobox programming language$/i)) {
+      if (line.length < 30) continue;
+      if (line.match(/^{{\s*Infobox programming language$/i)) {
         isWaitInfoBox = false;
         isReadInfoBox = true;
       }
