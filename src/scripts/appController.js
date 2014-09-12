@@ -73,7 +73,8 @@ function toInfoBox(page) {
 function sanitizeDates(infoBox) {
   return probe(infoBox.year) ||
          probe(infoBox.released) ||
-         probe(infoBox.latest_release_date);
+         probe(infoBox.latest_release_date) ||
+         probe(infoBox['latest release date']);
 
   function probe(year) {
     if (!year) return;
