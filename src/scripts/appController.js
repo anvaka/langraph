@@ -61,7 +61,7 @@ function toPageid(language) {
 function toInfoBox(page) {
   console.log('processing', page.title);
   var info = templateParser(page.revisions[0]['*']);
-  sanitizeDates(info);
+  info.parsedYear = sanitizeDates(info);
 
   return {
     title: page.title,
@@ -71,10 +71,16 @@ function toInfoBox(page) {
 }
 
 function sanitizeDates(infoBox) {
-  var year = infoBox.year || infoBox.released || '';
-  var numericMatch = year.match(/((?:19\d\d)|(?:2\d{3}))/);
-  if (numericMatch) {
-    infoBox.parsedYear = parseInt(numericMatch[1], 10);
+  return probe(infoBox.year) ||
+         probe(infoBox.released) ||
+         probe(infoBox.latest_release_date);
+
+  function probe(year) {
+    if (!year) return;
+    var numericMatch = year.match(/((?:19\d\d)|(?:2\d{3}))/);
+    if (numericMatch) {
+      return parseInt(numericMatch[1], 10);
+    }
   }
 }
 
