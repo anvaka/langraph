@@ -13,7 +13,7 @@ function parseInfoBox(pageContent) {
     var line = lines[i];
     if (isWaitInfoBox) {
       if (line.length < 30) continue;
-      if (line.match(/^{{\s*Infobox programming language$/i)) {
+      if (line.match(/^{{\s*Infobox programming language\s*$/i)) {
         isWaitInfoBox = false;
         isReadInfoBox = true;
       }
