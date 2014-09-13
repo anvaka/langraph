@@ -85,10 +85,12 @@ function languageInfluenceGraphBuilder(wikiClient, log) {
 
         if (!fromNode) {
           console.log("Language is not found in the list: ", from);
+          return;
         }
 
         if (!toNode) {
           console.log("Language is not found in the list: ", to);
+          return;
         }
 
         // todo: potentially we can find pages which are missing edges here:
