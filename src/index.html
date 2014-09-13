@@ -10,7 +10,23 @@
       <div class='log'>{{ logMessage }}</div>
       <ul>
         <li ng-repeat='language in languages'>
-        <a ng-href='{{language.url}}'>{{language.title}}</a> - {{language.info.parsedYear}}
+          <a ng-href='{{language.url}}'>{{language.title}}</a> - {{language.info.parsedYear}}
+          <p>influenced</p>
+          <ul>
+            <li ng-repeat='influenced in language.info.parsedInfluenced'
+                class='reference'
+                ng-class='{"known": !!influenced.ref}'>
+              {{influenced.name}}
+            </li>
+          </ul>
+          <p>influenced by</p>
+          <ul>
+            <li ng-repeat='influenced in language.info.parsedInfluencedBy'
+                class='reference'
+                ng-class='{"known": !!influenced.ref}'>
+              {{influenced.name}}
+            </li>
+          </ul>
         </li>
       </ul>
     </div>

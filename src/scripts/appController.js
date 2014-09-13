@@ -9,9 +9,10 @@ function AppController($scope, $http, $q) {
   $scope.logMessage = 'Building wikipedia graph...';
 
   // todo: this should really be a graph builder, not app controller:
-  wiki.getAllLanguages(10)
+  wiki.getAllLanguages()
     .then(getPageContent)
     .then(parseInfoBox)
+    .then(addCrossLinks)
     .then(log);
 
   function getPageContent(languages) {
@@ -22,7 +23,8 @@ function AppController($scope, $http, $q) {
     return wiki.getPages(languages.map(toPageid));
 
     function save(language) {
-      foundLanguages[language.pageid] = language;
+      if (!language.title) debugger;
+      foundLanguages[language.title] = language;
     }
   }
 
@@ -32,7 +34,23 @@ function AppController($scope, $http, $q) {
     return foundLanguages;
 
     function saveInfobox(infoBox) {
-      foundLanguages[infoBox.id].info = infoBox.info;
+      if (!infoBox.title) debugger;
+      foundLanguages[infoBox.title].info = infoBox.info;
+    }
+  }
+
+  function addCrossLinks(languages) {
+    Object.keys(languages).forEach(addLinks);
+    return foundLanguages;
+
+    function addLinks(key) {
+      var info = languages[key].info;
+      info.parsedInfluenced.forEach(checkLinkExist);
+      info.parsedInfluencedBy.forEach(checkLinkExist);
+    }
+
+    function checkLinkExist(language) {
+      language.ref = foundLanguages[language.link];
     }
   }
 }
@@ -73,8 +91,6 @@ function toInfoBox(page) {
 }
 
 function parseLanguagesList(wikiText) {
-// "[[C++]], [[Eiffel (programming language)|Eiffel]], [[PL/SQL]], [[VHDL]], [[Ruby (programming language)|Ruby]], [[Java (programming language)|Java]], [[Seed7]]"
-
   var result = [];
   if (!wikiText) return result;
 
@@ -84,7 +100,7 @@ function parseLanguagesList(wikiText) {
   while ((match = languageRegex.exec(wikiText))) {
     result.push({
       name: match[2] || match[1],
-      link: escapeWikiUrl(match[1])
+      link: match[1]
     });
   }
 
@@ -93,9 +109,9 @@ function parseLanguagesList(wikiText) {
 
 function sanitizeDates(infoBox) {
   return probe(infoBox.year) ||
-         probe(infoBox.released) ||
-         probe(infoBox.latest_release_date) ||
-         probe(infoBox['latest release date']);
+    probe(infoBox.released) ||
+    probe(infoBox.latest_release_date) ||
+    probe(infoBox['latest release date']);
 
   function probe(year) {
     if (!year) return;
@@ -105,5 +121,6 @@ function sanitizeDates(infoBox) {
     }
   }
 }
+
 
 AppController.$inject = ['$scope', '$http', '$q'];
