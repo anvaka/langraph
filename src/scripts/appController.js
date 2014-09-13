@@ -10,21 +10,41 @@ function AppController($scope, $http, $q) {
   var renderer = require('ngraph.svg')(graph, {
     container: document.getElementById('graphContainer'),
     physics: {
-      springLength: 160,
+      springLength: 260,
       springCoeff: 0.0008,
-      dragCoeff: 0.05,
-      gravity: -30.2,
-      theta: 1,
-      timeStep: 8
+      dragCoeff: 0.01,
+      gravity: -50.2,
+      theta: 0.8,
+      timeStep: 4
     }
   });
+
   var layout = renderer.layout;
+
+  graph.on('changed', function(changes) {
+    changes.forEach(function(change) {
+      if (change.changeType === 'add' && change.node) {
+        setInitialPosition(change.node);
+      }
+    });
+  });
+
+  function setInitialPosition(node) {
+    var year = node && node.data && node.data.info && node.data.info.parsedYear;
+    if (year) {
+      layout.setNodePosition(node.id, getX(year), 50 - Math.random() * 100);
+    }
+  }
+
+  function getX(year) {
+    return (year - 1950) * 100;
+  }
 
   renderer.node(function(node) {
     var ui = svg.compile([
       "<g>",
       "<circle fill='deepskyblue' r='5px'></circle>",
-      "<text fill='deepskyblue' y='-10' x='-5'>{{text}}</text>",
+      "<text fill='#ddd' y='-10' x='-5'>{{text}}</text>",
       "</g>"
     ].join('\n'));
 
@@ -37,12 +57,17 @@ function AppController($scope, $http, $q) {
     return ui;
   }).placeNode(function(nodeUI, pos, model) {
     var info = model.data.info;
-    var x = (info.parsedYear - 1940) * 50;
+    var x = getX(info.parsedYear);
+
     var y = pos.y;
     if (isNaN(x)) x = pos.x;
 
     layout.setNodePosition(model.id, x, y);
     nodeUI.attr('transform', 'translate(' + x + ',' + y + ')');
+  });
+
+  renderer.link(function(linkUI, pos) {
+    return svg("line").attr("stroke", "#eee");
   });
 
   renderer.run();
