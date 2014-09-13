@@ -9,7 +9,7 @@ function AppController($scope, $http, $q) {
   $scope.logMessage = 'Building wikipedia graph...';
 
   // todo: this should really be a graph builder, not app controller:
-  wiki.getAllLanguages()
+  wiki.getAllLanguages(10)
     .then(getPageContent)
     .then(parseInfoBox)
     .then(log);
@@ -62,12 +62,33 @@ function toInfoBox(page) {
   console.log('processing', page.title);
   var info = templateParser(page.revisions[0]['*']);
   info.parsedYear = sanitizeDates(info);
+  info.parsedInfluenced = parseLanguagesList(info.influenced);
+  info.parsedInfluencedBy = parseLanguagesList(info.influenced_by);
 
   return {
     title: page.title,
     id: page.pageid,
     info: info
   };
+}
+
+function parseLanguagesList(wikiText) {
+// "[[C++]], [[Eiffel (programming language)|Eiffel]], [[PL/SQL]], [[VHDL]], [[Ruby (programming language)|Ruby]], [[Java (programming language)|Java]], [[Seed7]]"
+
+  var result = [];
+  if (!wikiText) return result;
+
+  var languageRegex = /\[\[(.+?)(?:\|(.+?))?\]\]/g;
+  var match;
+
+  while ((match = languageRegex.exec(wikiText))) {
+    result.push({
+      name: match[2] || match[1],
+      link: escapeWikiUrl(match[1])
+    });
+  }
+
+  return result;
 }
 
 function sanitizeDates(infoBox) {
