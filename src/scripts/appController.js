@@ -10,31 +10,17 @@ function AppController($scope, $http, $q) {
   var renderer = require('ngraph.svg')(graph, {
     container: document.getElementById('graphContainer'),
     physics: {
-      springLength: 260,
+      springLength: 300,
       springCoeff: 0.0008,
-      dragCoeff: 0.01,
-      gravity: -50.2,
+      dragCoeff: 0.1,
+      gravity: -150.2,
       theta: 0.8,
       timeStep: 4
     }
   });
 
   var layout = renderer.layout;
-
-  graph.on('changed', function(changes) {
-    changes.forEach(function(change) {
-      if (change.changeType === 'add' && change.node) {
-        setInitialPosition(change.node);
-      }
-    });
-  });
-
-  function setInitialPosition(node) {
-    var year = node && node.data && node.data.info && node.data.info.parsedYear;
-    if (year) {
-      layout.setNodePosition(node.id, getX(year), 50 - Math.random() * 100);
-    }
-  }
+  window.layout = layout;
 
   function getX(year) {
     return (year - 1950) * 100;
@@ -49,7 +35,7 @@ function AppController($scope, $http, $q) {
     ].join('\n'));
 
     var info = node.data.info;
-    var title = info.name;
+    var title = info.name || info.title;
 
     ui.dataSource({
       text: title
