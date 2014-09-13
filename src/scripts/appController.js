@@ -16,6 +16,7 @@ function AppController($scope, $http, $q) {
   });
 
   function log(message) {
+    console.log(message);
     $scope.logMessage = message;
   }
 }
