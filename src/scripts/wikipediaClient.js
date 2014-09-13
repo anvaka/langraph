@@ -59,7 +59,7 @@ function wiki(http, q) {
   }
 
   function getPagesUsingTemplate(templateTitle, limit) {
-    if (typeof limit !== 'number') limit = 500;
+    if (typeof limit !== 'number') limit = 100000;
 
     var totalFetched = 0;
 
@@ -69,7 +69,7 @@ function wiki(http, q) {
       eititle: templateTitle,
       eifilterredir: 'nonredirects',
       einamespace: 0,
-      eilimit: limit,
+      eilimit: Math.min(limit, 500),
       format: 'json',
       callback: 'JSON_CALLBACK'
     };
