@@ -22,7 +22,9 @@ function languageInfluenceGraphBuilder(wikiClient, log) {
       return graph;
 
       function addNode(infoBox) {
-        graph.addNode(infoBox.title, infoBox);
+        if (infoBox.info && infoBox.info.parsedYear) {
+          graph.addNode(infoBox.title, infoBox);
+        }
       }
     }
 
