@@ -92,15 +92,20 @@ function toInfoBox(page) {
 
 function parseLanguagesList(wikiText) {
   var result = [];
+  var knownLanguages = Object.create(null);
   if (!wikiText) return result;
 
   var languageRegex = /\[\[(.+?)(?:\|(.+?))?\]\]/g;
   var match;
 
   while ((match = languageRegex.exec(wikiText))) {
+    var languageLink = match[1];
+    if (knownLanguages[languageLink]) continue;
+    knownLanguages[languageLink] = 1;
+
     result.push({
-      name: match[2] || match[1],
-      link: match[1]
+      name: match[2] || languageLink,
+      link: languageLink
     });
   }
 
