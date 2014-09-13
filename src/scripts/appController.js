@@ -81,7 +81,7 @@ function toInfoBox(page) {
   var info = templateParser(page.revisions[0]['*']);
   info.parsedYear = sanitizeDates(info);
   info.parsedInfluenced = parseLanguagesList(info.influenced);
-  info.parsedInfluencedBy = parseLanguagesList(info.influenced_by);
+  info.parsedInfluencedBy = parseLanguagesList(info.influenced_by || info['influenced by']);
 
   return {
     title: page.title,
