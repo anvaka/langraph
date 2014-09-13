@@ -5,14 +5,15 @@ function AppController($scope, $http, $q) {
   log('Building wikipedia graph...');
 
   var graphBuilder = require('./languageInfluenceGraphBuilder')(wiki, log);
-  var graph = {}; // <--- should be instance of ngraph
-  graphBuilder.build(graph).then(function(result) {
+  var graph = require('ngraph.graph')();
+  graphBuilder.build(graph).then(function(graph) {
     log('Done');
-    $scope.languages = Object.keys(result).map(toValue).map(toView);
+    var languages = [];
+    graph.forEachNode(function (node) {
+      if (node.data) languages.push(node.data);
+    });
 
-    function toValue(key) {
-      return result[key];
-    }
+    $scope.languages = languages.map(toView);
   });
 
   function log(message) {

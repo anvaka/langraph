@@ -3,8 +3,6 @@ var templateParser = require('./templateParser');
 module.exports = languageInfluenceGraphBuilder;
 
 function languageInfluenceGraphBuilder(wikiClient, log) {
-  var foundLanguages = {};
-
   return {
     build: build
   };
@@ -14,35 +12,36 @@ function languageInfluenceGraphBuilder(wikiClient, log) {
       .then(getPageContent)
       .then(parseInfoBox)
       .then(addCrossLinks);
-  }
 
-  function getPageContent(languages) {
-    return wikiClient.getPages(languages.map(toPageid));
-  }
+    function getPageContent(languages) {
+      return wikiClient.getPages(languages.map(toPageid));
+    }
 
-  function parseInfoBox(pages) {
-    pages.map(toInfoBox).forEach(saveInfobox);
-    return foundLanguages;
+    function parseInfoBox(pages) {
+      pages.map(toInfoBox).forEach(addNode);
+      return graph;
 
-    function saveInfobox(infoBox) {
-      foundLanguages[infoBox.title] = infoBox;
+      function addNode(infoBox) {
+        graph.addNode(infoBox.title, infoBox);
+      }
+    }
+
+    function toInfoBox(page) {
+      log('Processing' + page.title);
+
+      var info = templateParser(page.revisions[0]['*']);
+      info.parsedYear = sanitizeDates(info);
+      info.parsedInfluenced = parseLanguagesList(info.influenced);
+      info.parsedInfluencedBy = parseLanguagesList(info.influenced_by || info['influenced by']);
+
+      return {
+        title: page.title,
+        id: page.pageid,
+        info: info
+      };
     }
   }
 
-  function toInfoBox(page) {
-    log('Processing' + page.title);
-
-    var info = templateParser(page.revisions[0]['*']);
-    info.parsedYear = sanitizeDates(info);
-    info.parsedInfluenced = parseLanguagesList(info.influenced);
-    info.parsedInfluencedBy = parseLanguagesList(info.influenced_by || info['influenced by']);
-
-    return {
-      title: page.title,
-      id: page.pageid,
-      info: info
-    };
-  }
 
   function parseLanguagesList(wikiText) {
     var result = [];
@@ -66,18 +65,38 @@ function languageInfluenceGraphBuilder(wikiClient, log) {
     return result;
   }
 
-  function addCrossLinks(languages) {
-    Object.keys(languages).forEach(addLinks);
-    return foundLanguages;
+  function addCrossLinks(graph) {
+    graph.forEachNode(addLinks);
+    return graph;
 
-    function addLinks(key) {
-      var info = languages[key].info;
-      info.parsedInfluenced.forEach(checkLinkExist);
-      info.parsedInfluencedBy.forEach(checkLinkExist);
-    }
+    function addLinks(node) {
+      var info = node.data.info;
+      if (!node.data) {
+        // Probably page does not contain programming language infobox.
+        return;
+      }
 
-    function checkLinkExist(language) {
-      language.ref = foundLanguages[language.link];
+      info.parsedInfluenced.forEach(function (other) { addLink(node.id, other.link); });
+      info.parsedInfluencedBy.forEach(function (other) { addLink(other.link, node.id); });
+
+      function addLink(from, to) {
+        var fromNode = graph.getNode(from);
+        var toNode = graph.getNode(to);
+
+        if (!fromNode) {
+          console.log("Language is not found in the list: ", from);
+        }
+
+        if (!toNode) {
+          console.log("Language is not found in the list: ", to);
+        }
+
+        // todo: potentially we can find pages which are missing edges here:
+        // e.g. A -- [influenced] -> B, but B -- [missing influenced by] --> A.
+        if (!graph.hasLink(from, to)) {
+          graph.addLink(from, to);
+        }
+      }
     }
   }
 }
