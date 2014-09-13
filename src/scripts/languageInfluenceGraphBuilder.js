@@ -17,13 +17,16 @@ function languageInfluenceGraphBuilder(wikiClient) {
   }
 
   function getPageContent(languages) {
-    languages.forEach(save);
     return wikiClient.getPages(languages.map(toPageid));
   }
 
   function parseInfoBox(pages) {
     pages.map(toInfoBox).forEach(saveInfobox);
     return foundLanguages;
+
+    function saveInfobox(infoBox) {
+      foundLanguages[infoBox.title] = infoBox;
+    }
   }
 
   function toInfoBox(page) {
@@ -62,13 +65,6 @@ function languageInfluenceGraphBuilder(wikiClient) {
     return result;
   }
 
-  function saveInfobox(infoBox) {
-    foundLanguages[infoBox.title].info = infoBox.info;
-  }
-
-  function save(language) {
-    foundLanguages[language.title] = language;
-  }
 
   function addCrossLinks(languages) {
     Object.keys(languages).forEach(addLinks);
