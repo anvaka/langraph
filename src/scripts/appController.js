@@ -1,20 +1,23 @@
 require('an').controller(AppController);
 
 function AppController($scope, $http, $q) {
-  var wiki = require('./wikipediaClient')($http, $q);
-  $scope.logMessage = 'Building wikipedia graph...';
+  var wiki = require('./wikipediaClient')($http, $q, log);
+  log('Building wikipedia graph...');
 
-  var graphBuilder = require('./languageInfluenceGraphBuilder')(wiki);
+  var graphBuilder = require('./languageInfluenceGraphBuilder')(wiki, log);
   var graph = {}; // <--- should be instance of ngraph
   graphBuilder.build(graph).then(function(result) {
-    $scope.logMessage = 'Done. Getting page content';
+    log('Done');
     $scope.languages = Object.keys(result).map(toValue).map(toView);
 
     function toValue(key) {
       return result[key];
     }
-  }).then(log);
+  });
 
+  function log(message) {
+    $scope.logMessage = message;
+  }
 }
 
 function toView(language) {
@@ -24,10 +27,6 @@ function toView(language) {
     title: language.title,
     info: language.info
   };
-}
-
-function log(message) {
-  console.log(message);
 }
 
 function escapeWikiUrl(name) {

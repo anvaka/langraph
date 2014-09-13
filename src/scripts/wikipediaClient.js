@@ -2,7 +2,7 @@ module.exports = wiki;
 
 var wikiapi = 'http://en.wikipedia.org/w/api.php';
 
-function wiki(http, q) {
+function wiki(http, q, log) {
   return {
     getAllLanguages: getAllLanguages,
     getPages: getPages,
@@ -51,6 +51,8 @@ function wiki(http, q) {
       callback: 'JSON_CALLBACK'
     };
 
+    log('Getting wiki pages content...');
+
     return http.jsonp(wikiapi, { params: params })
       .then(function(res) {
         var pages = res.data.query.pages;
@@ -77,6 +79,8 @@ function wiki(http, q) {
     return get(params, []);
 
     function get(params, all) {
+      log('Getting programming languages list...');
+
       return http.jsonp(wikiapi, {
         params: params
       }).then(getNextPage);

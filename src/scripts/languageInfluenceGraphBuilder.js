@@ -2,7 +2,7 @@ var templateParser = require('./templateParser');
 
 module.exports = languageInfluenceGraphBuilder;
 
-function languageInfluenceGraphBuilder(wikiClient) {
+function languageInfluenceGraphBuilder(wikiClient, log) {
   var foundLanguages = {};
 
   return {
@@ -30,7 +30,8 @@ function languageInfluenceGraphBuilder(wikiClient) {
   }
 
   function toInfoBox(page) {
-    console.log('processing', page.title);
+    log('Processing' + page.title);
+
     var info = templateParser(page.revisions[0]['*']);
     info.parsedYear = sanitizeDates(info);
     info.parsedInfluenced = parseLanguagesList(info.influenced);
@@ -64,7 +65,6 @@ function languageInfluenceGraphBuilder(wikiClient) {
 
     return result;
   }
-
 
   function addCrossLinks(languages) {
     Object.keys(languages).forEach(addLinks);
