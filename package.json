@@ -23,6 +23,8 @@
     "an": "~0.0.2",
     "angular": "^1.2.10",
     "ngraph.graph": "0.0.3",
+    "ngraph.svg": "0.0.6",
+    "simplesvg": "0.0.2",
     "twitter-bootstrap-3.0.0": "^3.0.0"
   }
 }
