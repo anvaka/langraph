@@ -64,12 +64,12 @@ function AppController($scope, $http, $q) {
 
     graphBuilder.build(graph).then(function(graph) {
       log('Done. Found ' + graph.getNodesCount() + ' languages and ' + graph.getLinksCount() + ' connections.');
+
       var languages = [];
       graph.forEachNode(function(node) {
         if (node.data) languages.push(node.data);
       });
 
-      $scope.languages = languages.map(toView);
     });
   }
 
@@ -77,15 +77,6 @@ function AppController($scope, $http, $q) {
     console.log(message);
     $scope.logMessage = message;
   }
-}
-
-function toView(language) {
-  return {
-    pageid: language.pageid,
-    url: '//www.wikipedia.org/wiki/' + escapeWikiUrl(language.title),
-    title: language.title,
-    info: language.info
-  };
 }
 
 function escapeWikiUrl(name) {
