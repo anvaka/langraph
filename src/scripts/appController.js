@@ -61,6 +61,7 @@ function AppController($scope, $http, $q) {
   function buildGraph(graph) {
     var wiki = require('./wikipediaClient')($http, $q, log);
     var graphBuilder = require('./languageInfluenceGraphBuilder')(wiki, log);
+
     graphBuilder.build(graph).then(function(graph) {
       log('Done. Found ' + graph.getNodesCount() + ' languages and ' + graph.getLinksCount() + ' connections.');
       var languages = [];
