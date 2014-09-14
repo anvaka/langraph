@@ -64,12 +64,6 @@ function AppController($scope, $http, $q) {
 
     graphBuilder.build(graph).then(function(graph) {
       log('Done. Found ' + graph.getNodesCount() + ' languages and ' + graph.getLinksCount() + ' connections.');
-
-      var languages = [];
-      graph.forEachNode(function(node) {
-        if (node.data) languages.push(node.data);
-      });
-
     });
   }
 
