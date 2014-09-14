@@ -35,7 +35,7 @@ function AppController($scope, $http, $q) {
     ].join('\n'));
 
     var info = node.data.info;
-    var title = info.name || info.title;
+    var title = info.name || node.data.title;
 
     ui.dataSource({
       text: title

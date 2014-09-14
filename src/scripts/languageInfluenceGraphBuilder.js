@@ -29,10 +29,11 @@ function languageInfluenceGraphBuilder(wikiClient, log) {
     }
 
     function toInfoBox(page) {
-      log('Processing' + page.title);
+      log('Processing ' + page.title);
 
       var info = templateParser(page.revisions[0]['*']);
       info.parsedYear = sanitizeDates(info);
+      info.name = sanitizeName(info.name);
       info.parsedInfluenced = parseLanguagesList(info.influenced);
       info.parsedInfluencedBy = parseLanguagesList(info.influenced_by || info['influenced by']);
 
@@ -117,12 +118,18 @@ function toPageid(language) {
   return language.pageid;
 }
 
+function sanitizeName(name) {
+  // not sure what is considered a valid name.
+  return name && name.split(/</)[0];
+}
+
 function sanitizeDates(infoBox) {
   return probeYear(infoBox.year) ||
     probeYear(infoBox.released) ||
     probeYear(infoBox.latest_release_date) ||
     probeYear(infoBox['latest release date']);
 }
+
 
 function probeYear(year) {
   if (!year) return;
