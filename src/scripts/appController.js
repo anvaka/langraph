@@ -27,29 +27,56 @@ function AppController($scope, $http, $q) {
   }
 
   renderer.node(function(node) {
-    var ui = svg.compile([
-      "<g>",
-      "<circle fill='deepskyblue' r='5px'></circle>",
-      "<text fill='#ddd' y='-10' x='-5'>{{text}}</text>",
-      "</g>"
-    ].join('\n'));
+    var data = node.data;
+    var ui;
 
-    var info = node.data.info;
-    var title = info.name || node.data.title;
+    if (node.data.isMarker) {
+      ui = svg.compile([
+        "<g>",
+        "<circle fill='red' r='2px'></circle>",
+        "</g>"
+      ].join('\n'));
+    } else {
+      ui = svg.compile([
+        "<g>",
+        "<circle fill='deepskyblue' r='5px'></circle>",
+        "<text fill='#ddd' y='-10' x='-5'>{{text}}</text>",
+        "</g>"
+      ].join('\n'));
 
-    ui.dataSource({
-      text: title
-    });
+      var info = node.data.info;
+      var title = info.name || node.data.title;
+
+      ui.dataSource({
+        text: title
+      });
+    }
     return ui;
   }).placeNode(function(nodeUI, pos, model) {
-    var info = model.data.info;
-    var x = getX(info.parsedYear);
+    var x, y;
+    if (model.data.isMarker) {
+      var parentPos = model.data.pos;
+      if (!parentPos) {
+        parentPos = model.data.pos = layout.getNodePosition(model.data.parentId);
+      }
 
-    var y = pos.y;
-    if (isNaN(x)) x = pos.x;
+      y = parentPos.y;
+      x = getX(model.data.year);
+      displayX = getX(model.data.displayX);
+      layout.setNodePosition(model.id, x, y);
 
-    layout.setNodePosition(model.id, x, y);
-    nodeUI.attr('transform', 'translate(' + x + ',' + y + ')');
+      nodeUI.attr('transform', 'translate(' + displayX + ',' + y + ')');
+    } else {
+      var info = model.data.info;
+      x = getX(info.layoutYear);
+      y = pos.y;
+      if (isNaN(x)) x = pos.x;
+
+      layout.setNodePosition(model.id, x, y);
+
+      displayX = getX(info.parsedYear);
+      nodeUI.attr('transform', 'translate(' + displayX + ',' + y + ')');
+    }
   });
 
   renderer.link(function(linkUI, pos) {
@@ -60,10 +87,12 @@ function AppController($scope, $http, $q) {
 
   function buildGraph(graph) {
     var wiki = require('./wikipediaClient')($http, $q, log);
+    var addTimeLineNodes = require('./timelineNodes');
     var graphBuilder = require('./languageInfluenceGraphBuilder')(wiki, log);
 
     graphBuilder.build(graph).then(function(graph) {
       log('Done. Found ' + graph.getNodesCount() + ' languages and ' + graph.getLinksCount() + ' connections.');
+      addTimeLineNodes(graph);
     });
   }
 

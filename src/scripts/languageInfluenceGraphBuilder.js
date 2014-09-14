@@ -33,6 +33,7 @@ function languageInfluenceGraphBuilder(wikiClient, log) {
 
       var info = templateParser(page.revisions[0]['*']);
       info.parsedYear = sanitizeDates(info);
+      info.layoutYear = info.parsedYear + 0.5 - Math.random();
       info.name = sanitizeName(info.name);
       info.parsedInfluenced = parseLanguagesList(info.influenced);
       info.parsedInfluencedBy = parseLanguagesList(info.influenced_by || info['influenced by']);
