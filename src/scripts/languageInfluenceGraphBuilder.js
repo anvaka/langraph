@@ -44,7 +44,6 @@ function languageInfluenceGraphBuilder(wikiClient, log) {
     }
   }
 
-
   function parseLanguagesList(wikiText) {
     var result = [];
     var knownLanguages = Object.create(null);
@@ -69,7 +68,15 @@ function languageInfluenceGraphBuilder(wikiClient, log) {
 
   function addCrossLinks(graph) {
     graph.forEachNode(addLinks);
+    graph.forEachNode(removeIsolatedNodes);
+
     return graph;
+
+    function removeIsolatedNodes(node) {
+      if (graph.getLinks(node.id).length === 0) {
+        graph.removeNode(node.id);
+      }
+    }
 
     function addLinks(node) {
       var info = node.data.info;
@@ -103,6 +110,7 @@ function languageInfluenceGraphBuilder(wikiClient, log) {
       }
     }
   }
+
 }
 
 function toPageid(language) {
