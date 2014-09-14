@@ -24,6 +24,8 @@ function addTimeLineNodes(graph) {
     function addInfluenceMarkers(language) {
       var links = graph.getLinks(language);
       var influenceEnds = getLastInfluencedYear(links);
+      var parent = graph.getNode(language);
+      parent.data.influenceEnds = influenceEnds;
 
       for (var nextMarker = yearIdx + 1; nextMarker < allYears; nextMarker += 1) {
         var nextYear = sortedYears[nextMarker].year;
