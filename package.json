@@ -1,7 +1,7 @@
 {
   "name": "langraph",
   "scripts": {
-    "start": "gulp",
+    "start": "gulp --port 31338",
     "cover": "istanbul cover ./test/flatten.js",
     "testlocal": "zuul --local 8080 --ui tape -- ./test/*.js",
     "test": "zuul -- ./test/*.js"
